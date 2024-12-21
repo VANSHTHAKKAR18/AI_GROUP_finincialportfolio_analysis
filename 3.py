@@ -7,7 +7,7 @@ import seaborn as sns
 # Define Indian stock tickers (NSE symbols are typically suffixed with '.NS')
 tickers = ['TCS.NS', 'INFY.NS', 'RELIANCE.NS', 'HDFCBANK.NS', 'ITC.NS']
 
-# Define the time period for analysis (last 20 years)
+# Define the time period for analysis (last 1 year as per your request)
 start_date = '2023-12-01'
 end_date = '2024-12-01'
 
@@ -32,11 +32,22 @@ else:
 # Drop rows with missing data
 data.dropna(inplace=True)
 
-# Plot historical adjusted closing prices
+# Plot individual stock graphs (Date-wise for each stock)
+for ticker in tickers:
+    plt.figure(figsize=(12, 6))
+    plt.plot(data[ticker], label=ticker, color='blue')
+    plt.title(f'{ticker} - Adjusted Closing Price Over Time')
+    plt.xlabel('Date')
+    plt.ylabel('Price (INR)')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+# Plot combined graph for all stocks
 plt.figure(figsize=(12, 6))
 for ticker in tickers:
     plt.plot(data[ticker], label=ticker)
-plt.title('Historical Adjusted Closing Prices')
+plt.title('Adjusted Closing Prices for All Stocks')
 plt.xlabel('Date')
 plt.ylabel('Price (INR)')
 plt.legend()
@@ -44,10 +55,16 @@ plt.grid(True)
 plt.show()
 
 # Calculate daily returns
-daily_returns = data.pct_change(fill_method=None).dropna()
+daily_returns = data.pct_change().dropna()
 
-# Calculate annualized mean returns and covariance matrix
-annual_returns = daily_returns.mean() * 252  # 252 trading days in a year
+# Calculate annualized returns using compounded return method
+# Compound daily returns and then annualize
+annual_returns = (1 + daily_returns).prod()**(252 / len(daily_returns)) - 1
+
+# Convert annual returns to percentage
+annual_returns_percentage = annual_returns * 100  # Multiply by 100 to convert to percentage
+
+# Calculate covariance matrix for risk calculation
 cov_matrix = daily_returns.cov() * 252
 
 # Plot correlation matrix
@@ -63,9 +80,9 @@ weights = np.ones(len(tickers)) / len(tickers)
 portfolio_return = np.dot(weights, annual_returns)
 portfolio_risk = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
 
-# Bar plot of annualized returns
+# Bar plot of annualized returns in percentage
 plt.figure(figsize=(10, 6))
-annual_returns.sort_values().plot(kind='bar', color='skyblue')
+annual_returns_percentage.sort_values().plot(kind='bar', color='skyblue')
 plt.title('Annualized Returns for Individual Stocks')
 plt.ylabel('Return (%)')
 plt.xlabel('Stock')
@@ -107,3 +124,11 @@ plt.ylabel('Expected Return')
 plt.title('Monte Carlo Simulation: Risk vs. Return')
 plt.grid(True)
 plt.show()
+
+# Display the annualized returns as percentage
+print("\nAnnualized Returns (Percentage):")
+print(annual_returns_percentage)
+
+# Portfolio expected return and risk in percentage
+print(f"\nExpected Annual Return of Portfolio: {portfolio_return * 100:.2f}%")
+print(f"Portfolio Risk (Standard Deviation): {portfolio_risk * 100:.2f}%")

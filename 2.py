@@ -7,9 +7,9 @@ import seaborn as sns
 # Define Indian stock tickers (NSE symbols are typically suffixed with '.NS')
 tickers = ['TCS.NS', 'INFY.NS', 'RELIANCE.NS', 'HDFCBANK.NS', 'ITC.NS']
 
-# Define the time period for analysis (last 20 years)
-start_date = '2023-12-01'
-end_date = '2024-12-01'
+# Define the time period for analysis (last 1 year as per your request)
+start_date = '2023-12-21'
+end_date = '2024-12-19'
 
 # Download historical stock data
 print("Downloading data...")
@@ -48,6 +48,8 @@ daily_returns = data.pct_change(fill_method=None).dropna()
 
 # Calculate annualized mean returns and covariance matrix
 annual_returns = daily_returns.mean() * 252  # 252 trading days in a year
+annual_returns_percentage = annual_returns * 100  # Convert to percentage
+
 cov_matrix = daily_returns.cov() * 252
 
 # Plot correlation matrix
@@ -63,9 +65,9 @@ weights = np.ones(len(tickers)) / len(tickers)
 portfolio_return = np.dot(weights, annual_returns)
 portfolio_risk = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
 
-# Bar plot of annualized returns
+# Bar plot of annualized returns in percentage
 plt.figure(figsize=(10, 6))
-annual_returns.sort_values().plot(kind='bar', color='skyblue')
+annual_returns_percentage.sort_values().plot(kind='bar', color='skyblue')
 plt.title('Annualized Returns for Individual Stocks')
 plt.ylabel('Return (%)')
 plt.xlabel('Stock')
@@ -107,3 +109,11 @@ plt.ylabel('Expected Return')
 plt.title('Monte Carlo Simulation: Risk vs. Return')
 plt.grid(True)
 plt.show()
+
+# Display the annualized returns as percentage
+print("\nAnnualized Returns (Percentage):")
+print(annual_returns_percentage)
+
+# Portfolio expected return and risk in percentage
+print(f"\nExpected Annual Return of Portfolio: {portfolio_return * 100:.2f}%")
+print(f"Portfolio Risk (Standard Deviation): {portfolio_risk * 100:.2f}%")

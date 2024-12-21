@@ -7,8 +7,8 @@ import seaborn as sns
 # Define Indian stock tickers (NSE symbols are typically suffixed with '.NS')
 tickers = ['TCS.NS', 'INFY.NS', 'RELIANCE.NS', 'HDFCBANK.NS', 'ITC.NS']
 
-# Define the time period for analysis (last 20 years)
-start_date = '2023-12-01'
+# Define the time period for analysis (last 1 year as per your request)
+start_date = '2004-12-01'
 end_date = '2024-12-01'
 
 # Download historical stock data
@@ -106,4 +106,61 @@ plt.xlabel('Portfolio Risk (Standard Deviation)')
 plt.ylabel('Expected Return')
 plt.title('Monte Carlo Simulation: Risk vs. Return')
 plt.grid(True)
+plt.show()
+
+# Now, let's ask the user for investment and calculate the profit/loss for each stock
+initial_prices = data.iloc[0]  # First day price
+final_prices = data.iloc[-1]  # Last day price
+
+# Ask user for the investment amount in each stock
+investment_amounts = {}
+for ticker in tickers:
+    investment_amount = float(input(f"Enter the amount you want to invest in {ticker}: INR "))
+    investment_amounts[ticker] = investment_amount
+
+# Calculate profit or loss for each stock
+profits = {}
+total_invested = 0
+total_profit = 0
+
+for ticker in tickers:
+    initial_price = initial_prices[ticker]
+    final_price = final_prices[ticker]
+    investment_amount = investment_amounts[ticker]
+    
+    # Number of shares bought
+    shares_bought = investment_amount / initial_price
+    
+    # Value of the investment at the end
+    final_value = shares_bought * final_price
+    
+    # Profit/Loss
+    profit = final_value - investment_amount
+    profits[ticker] = profit
+    
+    # Add to total invested and total profit
+    total_invested += investment_amount
+    total_profit += profit
+
+# Display the profit or loss for each stock
+print("\nProfit or Loss from your investment:")
+for ticker, profit in profits.items():
+    if profit >= 0:
+        print(f"Profit from {ticker}: INR {profit:.2f}")
+    else:
+        print(f"Loss from {ticker}: INR {abs(profit):.2f}")
+
+# Now create a pie chart of total invested amount vs total gain/loss with both percentage and INR
+labels = ['Total Invested', 'Total Gain/Loss']
+sizes = [total_invested, total_profit]
+colors = ['lightblue', 'lightgreen' if total_profit >= 0 else 'lightcoral']
+
+# Function to format pie chart labels to show both percentage and INR
+def func(pct, allvals):
+    absolute = round(pct / 100.*np.sum(allvals), 2)
+    return f"{pct:.1f}%\nINR {absolute}"
+
+plt.figure(figsize=(8, 8))
+plt.pie(sizes, labels=labels, autopct=lambda pct: func(pct, sizes), startangle=90, colors=colors)
+plt.title('Total Invested vs Total Gain/Loss')
 plt.show()

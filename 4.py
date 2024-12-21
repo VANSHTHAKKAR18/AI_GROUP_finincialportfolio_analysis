@@ -7,7 +7,7 @@ import seaborn as sns
 # Define Indian stock tickers (NSE symbols are typically suffixed with '.NS')
 tickers = ['TCS.NS', 'INFY.NS', 'RELIANCE.NS', 'HDFCBANK.NS', 'ITC.NS']
 
-# Define the time period for analysis (last 20 years)
+# Define the time period for analysis (last 1 year as per your request)
 start_date = '2023-12-01'
 end_date = '2024-12-01'
 
@@ -105,5 +105,49 @@ plt.colorbar(label='Sharpe Ratio')
 plt.xlabel('Portfolio Risk (Standard Deviation)')
 plt.ylabel('Expected Return')
 plt.title('Monte Carlo Simulation: Risk vs. Return')
+plt.grid(True)
+plt.show()
+
+# Now, let's ask the user for investment and calculate the profit/loss for each stock
+initial_prices = data.iloc[0]  # First day price
+final_prices = data.iloc[-1]  # Last day price
+
+# Ask user for the investment amount in each stock
+investment_amounts = {}
+for ticker in tickers:
+    investment_amount = float(input(f"Enter the amount you want to invest in {ticker}: INR "))
+    investment_amounts[ticker] = investment_amount
+
+# Calculate profit or loss for each stock
+profits = {}
+for ticker in tickers:
+    initial_price = initial_prices[ticker]
+    final_price = final_prices[ticker]
+    investment_amount = investment_amounts[ticker]
+    
+    # Number of shares bought
+    shares_bought = investment_amount / initial_price
+    
+    # Value of the investment at the end
+    final_value = shares_bought * final_price
+    
+    # Profit/Loss
+    profit = final_value - investment_amount
+    profits[ticker] = profit
+
+# Display the profit or loss for each stock
+print("\nProfit or Loss from your investment:")
+for ticker, profit in profits.items():
+    if profit >= 0:
+        print(f"Profit from {ticker}: INR {profit:.2f}")
+    else:
+        print(f"Loss from {ticker}: INR {abs(profit):.2f}")
+
+# Optionally, display a bar chart for the profit/loss of each stock
+plt.figure(figsize=(10, 6))
+plt.bar(profits.keys(), profits.values(), color=['green' if p > 0 else 'red' for p in profits.values()])
+plt.title('Profit/Loss from Investment in Stocks')
+plt.xlabel('Stock')
+plt.ylabel('Profit/Loss (INR)')
 plt.grid(True)
 plt.show()
